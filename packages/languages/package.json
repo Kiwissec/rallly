@@ -4,7 +4,8 @@
   "private": true,
   "exports": {
     ".": "./src/index.ts",
-    "./*": "./src/*.ts"
+    "./*": "./src/*.ts",
+    "./languages.json": "./languages.json"
   },
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.6.0",
