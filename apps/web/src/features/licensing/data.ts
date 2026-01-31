@@ -1,10 +1,7 @@
 import { prisma } from "@rallly/database";
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
-import {
-  DEFAULT_SEAT_LIMIT,
-  INSTANCE_LICENSE_TAG,
-} from "@/features/licensing/constants";
+import { INSTANCE_LICENSE_TAG } from "@/features/licensing/constants";
 import { isSelfHosted } from "@/utils/constants";
 
 export function getInstanceLicense() {
@@ -48,18 +45,11 @@ export const loadInstanceLicense = cache(async () => {
   };
 });
 
+/**
+ * Modified: Always return unlimited users for self-hosted instances
+ */
 export const getUserLimit = async () => {
-  if (!isSelfHosted) {
-    return Number.POSITIVE_INFINITY;
-  }
-
-  const license = await loadInstanceLicense();
-
-  if (!license) {
-    return DEFAULT_SEAT_LIMIT;
-  }
-
-  return license.seats;
+  return Number.POSITIVE_INFINITY;
 };
 
 export const getWhiteLabelAddon = async () => {
