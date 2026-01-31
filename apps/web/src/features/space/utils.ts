@@ -29,30 +29,19 @@ export const fromDBRole = (role: PrismaSpaceMemberRole): MemberRole => {
 
 /**
  * Default seat limit for spaces without active subscriptions
+ * Modified: Removed seat limit for self-hosted instances
  */
-const DEFAULT_SEAT_LIMIT = 1;
-const MAX_SEAT_LIMIT = 100;
+const DEFAULT_SEAT_LIMIT = Number.POSITIVE_INFINITY;
+const MAX_SEAT_LIMIT = Number.POSITIVE_INFINITY;
 
 /**
  * Returns the seat limit for self-hosted instances based on license type
+ * Modified: Always return unlimited seats for self-hosted instances
  */
 export function getSelfHostedSeatLimit(
   licenseType: LicenseType | null,
 ): number {
-  if (!licenseType) {
-    return DEFAULT_SEAT_LIMIT;
-  }
-
-  switch (licenseType) {
-    case "PLUS":
-      return 5;
-    case "ORGANIZATION":
-      return 50;
-    case "ENTERPRISE":
-      return MAX_SEAT_LIMIT;
-    default:
-      return DEFAULT_SEAT_LIMIT;
-  }
+  return Number.POSITIVE_INFINITY;
 }
 
 /**
