@@ -9,8 +9,55 @@ import { getInstanceBrandingConfig } from "@/features/branding/queries";
 
 const logger = createLogger("emails");
 
+// Supported locales for email templates (must match packages/emails/locales/)
+const emailSupportedLocales = new Set([
+  "ca",
+  "cs",
+  "da",
+  "de",
+  "en",
+  "es",
+  "eu",
+  "fi",
+  "fr",
+  "hr",
+  "hu",
+  "it",
+  "ja",
+  "ko",
+  "nl",
+  "no",
+  "pl",
+  "pt",
+  "pt-BR",
+  "ru",
+  "sk",
+  "sv",
+  "th",
+  "tr",
+  "vi",
+  "zh-Hant",
+]);
+
+/**
+ * Normalize a locale to a supported email locale.
+ * This handles migration from removed locales (e.g., "zh" -> "zh-Hant").
+ */
+function normalizeEmailLocale(locale?: string): string {
+  if (!locale) return "en";
+  if (emailSupportedLocales.has(locale)) {
+    return locale;
+  }
+  // Migration: zh (removed) -> zh-Hant
+  if (locale === "zh") {
+    return "zh-Hant";
+  }
+  return "en";
+}
+
 export const getEmailClient = async (locale?: string) => {
   const brandingConfig = await getInstanceBrandingConfig();
+  const normalizedLocale = normalizeEmailLocale(locale);
 
   return new EmailClient({
     provider: {
@@ -31,7 +78,7 @@ export const getEmailClient = async (locale?: string) => {
       appName: brandingConfig.appName,
       hideAttribution: brandingConfig.hideAttribution,
     },
-    locale,
+    locale: normalizedLocale,
     onError: (e) => {
       logger.error({ error: e }, "Email client error");
       Sentry.captureException(e);
