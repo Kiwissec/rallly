@@ -25,7 +25,8 @@ export async function captureOne(
   options: { wait?: number } = {},
 ): Promise<{ email: MailpitMessage }> {
   const startTime = Date.now();
-  const timeout = options.wait ?? 5000;
+  const defaultTimeout = process.env.CI ? 15000 : 5000;
+  const timeout = options.wait ?? defaultTimeout;
 
   while (Date.now() - startTime < timeout) {
     const { messages } = await getMessages();

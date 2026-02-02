@@ -2,6 +2,7 @@ import { cn } from "@rallly/ui";
 import { Badge } from "@rallly/ui/badge";
 import { Button } from "@rallly/ui/button";
 import { Card, CardHeader, CardTitle } from "@rallly/ui/card";
+import { useHorizontalWheelScroll } from "@rallly/ui/hooks/use-horizontal-wheel-scroll";
 import { Icon } from "@rallly/ui/icon";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@rallly/ui/tooltip";
 import {
@@ -55,34 +56,24 @@ function EscapeListener({ onEscape }: { onEscape: () => void }) {
   return null;
 }
 
-const useIsOverflowing = <E extends Element | null>(
-  ref: React.RefObject<E>,
-) => {
+const useIsOverflowing = <E extends Element | null>(element: E) => {
   const [isOverflowing, setIsOverflowing] = React.useState(false);
 
   React.useEffect(() => {
-    const checkOverflow = () => {
-      if (ref.current) {
-        const element = ref.current;
-        const overflowX = element.scrollWidth > element.clientWidth;
-        const overflowY = element.scrollHeight > element.clientHeight;
+    if (!element) return;
 
-        setIsOverflowing(overflowX || overflowY);
-      }
+    const checkOverflow = () => {
+      const overflowX = element.scrollWidth > element.clientWidth;
+      const overflowY = element.scrollHeight > element.clientHeight;
+      setIsOverflowing(overflowX || overflowY);
     };
 
-    if (ref.current) {
-      const resizeObserver = new ResizeObserver(checkOverflow);
-      resizeObserver.observe(ref.current);
+    const resizeObserver = new ResizeObserver(checkOverflow);
+    resizeObserver.observe(element);
+    checkOverflow();
 
-      // Initial check
-      checkOverflow();
-
-      return () => {
-        resizeObserver.disconnect();
-      };
-    }
-  }, [ref]);
+    return () => resizeObserver.disconnect();
+  }, [element]);
 
   return isOverflowing;
 };
@@ -96,8 +87,8 @@ const DesktopPoll: React.FunctionComponent = () => {
 
   const goToNextPage = () => {
     setDidScroll(true);
-    if (scrollRef.current) {
-      scrollRef.current.scrollLeft += 235;
+    if (scrollElement) {
+      scrollElement.scrollLeft += 235;
     }
   };
 
@@ -115,8 +106,8 @@ const DesktopPoll: React.FunctionComponent = () => {
   };
 
   const goToPreviousPage = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollLeft -= 235;
+    if (scrollElement) {
+      scrollElement.scrollLeft -= 235;
     }
   };
   const { t } = useTranslation();
@@ -126,11 +117,25 @@ const DesktopPoll: React.FunctionComponent = () => {
   const { participants } = useParticipants();
   const visibleParticipants = useVisibleParticipants();
 
-  const scrollRef = React.useRef<HTMLDivElement>(null);
+  const handleWheelScroll = React.useCallback(() => {
+    if (!didScroll) {
+      setDidScroll(true);
+    }
+  }, [didScroll]);
 
-  const isOverflowing = useIsOverflowing(scrollRef);
+  const { ref: scrollRef, element: scrollElement } =
+    useHorizontalWheelScroll<HTMLDivElement>({
+      onScroll: handleWheelScroll,
+    });
 
-  const { x } = useScroll(scrollRef as React.RefObject<HTMLElement>);
+  const isOverflowing = useIsOverflowing(scrollElement);
+
+  const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
+  React.useEffect(() => {
+    scrollElementRef.current = scrollElement;
+  }, [scrollElement]);
+
+  const { x } = useScroll(scrollElementRef as React.RefObject<HTMLElement>);
 
   const containerRef = React.useRef<HTMLDivElement>(null);
 
@@ -174,9 +179,9 @@ const DesktopPoll: React.FunctionComponent = () => {
                     variant="ghost"
                     size="icon"
                     disabled={Boolean(
-                      scrollRef.current &&
-                        x + scrollRef.current.offsetWidth >=
-                          scrollRef.current.scrollWidth,
+                      scrollElement &&
+                        x + scrollElement.offsetWidth >=
+                          scrollElement.scrollWidth,
                     )}
                     onClick={() => {
                       goToNextPage();

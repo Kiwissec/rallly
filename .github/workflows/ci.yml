@@ -69,6 +69,7 @@ jobs:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5450/rallly
       DIRECT_DATABASE_URL: postgresql://postgres:postgres@localhost:5450/rallly
       CI: true
+      SMTP_REJECT_UNAUTHORIZED: false
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-node

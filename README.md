@@ -85,6 +85,42 @@ The following instructions are for running the project locally for development.
    pnpm dev
    ```
 
+## Testing
+
+### Unit Tests
+
+Run unit tests with:
+
+```bash
+pnpm test:unit
+```
+
+### Integration Tests
+
+Integration tests require Docker services to be running:
+
+```bash
+pnpm docker:up
+pnpm db:deploy
+pnpm turbo build:test --filter=@rallly/web
+pnpm turbo test:integration
+```
+
+## Project Structure
+
+```
+apps/
+  web/         # Main Next.js application
+  landing/     # Landing page
+
+packages/
+  database/    # Prisma schema and client
+  ui/          # Shared UI components
+  emails/      # Email templates
+  utils/       # Shared utility functions
+  backend/     # Backend logic and tRPC routers
+```
+
 ## Contributors
 
 Please read our [contributing guide](CONTRIBUTING.md) to learn about how to contribute to this project.
