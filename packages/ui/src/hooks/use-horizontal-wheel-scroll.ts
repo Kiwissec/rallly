@@ -9,18 +9,25 @@ interface UseHorizontalWheelScrollOptions {
   onScroll?: () => void;
 }
 
+interface UseHorizontalWheelScrollResult<T extends HTMLElement> {
+  /** Callback ref to attach to the scrollable element */
+  ref: React.RefCallback<T>;
+  /** The current element, useful for imperative access */
+  element: T | null;
+}
+
 /**
  * Converts vertical mouse wheel scrolling into horizontal scrolling for a container.
+ * Returns a callback ref that should be attached to the scrollable element.
  * Handles edge cases like boundary detection to allow normal page scrolling when at edges.
  */
 export function useHorizontalWheelScroll<T extends HTMLElement>(
-  ref: React.RefObject<T | null>,
   options: UseHorizontalWheelScrollOptions = {},
-): void {
+): UseHorizontalWheelScrollResult<T> {
   const { sensitivity = 1, onScroll } = options;
+  const [element, setElement] = React.useState<T | null>(null);
 
   React.useEffect(() => {
-    const element = ref.current;
     if (!element) return;
 
     const handleWheel = (event: WheelEvent) => {
@@ -58,5 +65,11 @@ export function useHorizontalWheelScroll<T extends HTMLElement>(
     return () => {
       element.removeEventListener("wheel", handleWheel);
     };
-  }, [ref, sensitivity, onScroll]);
+  }, [element, sensitivity, onScroll]);
+
+  const ref = React.useCallback((node: T | null) => {
+    setElement(node);
+  }, []);
+
+  return { ref, element };
 }

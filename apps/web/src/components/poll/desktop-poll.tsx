@@ -97,8 +97,8 @@ const DesktopPoll: React.FunctionComponent = () => {
 
   const goToNextPage = () => {
     setDidScroll(true);
-    if (scrollRef.current) {
-      scrollRef.current.scrollLeft += 235;
+    if (scrollElement) {
+      scrollElement.scrollLeft += 235;
     }
   };
 
@@ -116,8 +116,8 @@ const DesktopPoll: React.FunctionComponent = () => {
   };
 
   const goToPreviousPage = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollLeft -= 235;
+    if (scrollElement) {
+      scrollElement.scrollLeft -= 235;
     }
   };
   const { t } = useTranslation();
@@ -127,19 +127,21 @@ const DesktopPoll: React.FunctionComponent = () => {
   const { participants } = useParticipants();
   const visibleParticipants = useVisibleParticipants();
 
-  const scrollRef = React.useRef<HTMLDivElement>(null);
+  const { ref: scrollRef, element: scrollElement } =
+    useHorizontalWheelScroll<HTMLDivElement>({
+      onScroll: () => {
+        if (!didScroll) {
+          setDidScroll(true);
+        }
+      },
+    });
 
-  useHorizontalWheelScroll(scrollRef, {
-    onScroll: () => {
-      if (!didScroll) {
-        setDidScroll(true);
-      }
-    },
-  });
+  const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
+  scrollElementRef.current = scrollElement;
 
-  const isOverflowing = useIsOverflowing(scrollRef);
+  const isOverflowing = useIsOverflowing(scrollElementRef);
 
-  const { x } = useScroll(scrollRef as React.RefObject<HTMLElement>);
+  const { x } = useScroll(scrollElementRef as React.RefObject<HTMLElement>);
 
   const containerRef = React.useRef<HTMLDivElement>(null);
 
@@ -183,9 +185,9 @@ const DesktopPoll: React.FunctionComponent = () => {
                     variant="ghost"
                     size="icon"
                     disabled={Boolean(
-                      scrollRef.current &&
-                        x + scrollRef.current.offsetWidth >=
-                          scrollRef.current.scrollWidth,
+                      scrollElement &&
+                        x + scrollElement.offsetWidth >=
+                          scrollElement.scrollWidth,
                     )}
                     onClick={() => {
                       goToNextPage();

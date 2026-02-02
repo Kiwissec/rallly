@@ -174,7 +174,7 @@ export class EmailClient {
             aws,
             sendingRate: 10,
           },
-        });
+        } as Parameters<typeof createTransport>[0]);
         break;
       }
       case "smtp": {
