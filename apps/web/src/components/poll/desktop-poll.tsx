@@ -56,34 +56,24 @@ function EscapeListener({ onEscape }: { onEscape: () => void }) {
   return null;
 }
 
-const useIsOverflowing = <E extends Element | null>(
-  ref: React.RefObject<E>,
-) => {
+const useIsOverflowing = <E extends Element | null>(element: E) => {
   const [isOverflowing, setIsOverflowing] = React.useState(false);
 
   React.useEffect(() => {
-    const checkOverflow = () => {
-      if (ref.current) {
-        const element = ref.current;
-        const overflowX = element.scrollWidth > element.clientWidth;
-        const overflowY = element.scrollHeight > element.clientHeight;
+    if (!element) return;
 
-        setIsOverflowing(overflowX || overflowY);
-      }
+    const checkOverflow = () => {
+      const overflowX = element.scrollWidth > element.clientWidth;
+      const overflowY = element.scrollHeight > element.clientHeight;
+      setIsOverflowing(overflowX || overflowY);
     };
 
-    if (ref.current) {
-      const resizeObserver = new ResizeObserver(checkOverflow);
-      resizeObserver.observe(ref.current);
+    const resizeObserver = new ResizeObserver(checkOverflow);
+    resizeObserver.observe(element);
+    checkOverflow();
 
-      // Initial check
-      checkOverflow();
-
-      return () => {
-        resizeObserver.disconnect();
-      };
-    }
-  }, [ref]);
+    return () => resizeObserver.disconnect();
+  }, [element]);
 
   return isOverflowing;
 };
@@ -138,10 +128,12 @@ const DesktopPoll: React.FunctionComponent = () => {
       onScroll: handleWheelScroll,
     });
 
-  const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
-  scrollElementRef.current = scrollElement;
+  const isOverflowing = useIsOverflowing(scrollElement);
 
-  const isOverflowing = useIsOverflowing(scrollElementRef);
+  const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
+  React.useEffect(() => {
+    scrollElementRef.current = scrollElement;
+  }, [scrollElement]);
 
   const { x } = useScroll(scrollElementRef as React.RefObject<HTMLElement>);
 
