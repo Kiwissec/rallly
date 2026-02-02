@@ -127,13 +127,15 @@ const DesktopPoll: React.FunctionComponent = () => {
   const { participants } = useParticipants();
   const visibleParticipants = useVisibleParticipants();
 
+  const handleWheelScroll = React.useCallback(() => {
+    if (!didScroll) {
+      setDidScroll(true);
+    }
+  }, [didScroll]);
+
   const { ref: scrollRef, element: scrollElement } =
     useHorizontalWheelScroll<HTMLDivElement>({
-      onScroll: () => {
-        if (!didScroll) {
-          setDidScroll(true);
-        }
-      },
+      onScroll: handleWheelScroll,
     });
 
   const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
