@@ -31,8 +31,20 @@ export function useHorizontalWheelScroll<T extends HTMLElement>(
     if (!element) return;
 
     const handleWheel = (event: WheelEvent) => {
-      // Only intercept when horizontal scrolling is possible
+      // Don't intercept browser zoom gestures (Ctrl+wheel or Cmd+wheel)
+      if (event.ctrlKey || event.metaKey) {
+        return;
+      }
+
+      // Check horizontal and vertical scrollability
       const canScrollHorizontally = element.scrollWidth > element.clientWidth;
+      const canScrollVertically = element.scrollHeight > element.clientHeight;
+
+      // If vertical scrolling is possible, don't intercept - let browser handle naturally
+      if (canScrollVertically) {
+        return;
+      }
+
       if (!canScrollHorizontally) return;
 
       // Only handle vertical wheel (deltaY), ignore horizontal (deltaX, e.g., trackpad)
