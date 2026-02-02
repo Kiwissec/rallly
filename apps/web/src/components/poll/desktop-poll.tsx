@@ -2,6 +2,7 @@ import { cn } from "@rallly/ui";
 import { Badge } from "@rallly/ui/badge";
 import { Button } from "@rallly/ui/button";
 import { Card, CardHeader, CardTitle } from "@rallly/ui/card";
+import { useHorizontalWheelScroll } from "@rallly/ui/hooks/use-horizontal-wheel-scroll";
 import { Icon } from "@rallly/ui/icon";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@rallly/ui/tooltip";
 import {
@@ -127,6 +128,14 @@ const DesktopPoll: React.FunctionComponent = () => {
   const visibleParticipants = useVisibleParticipants();
 
   const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  useHorizontalWheelScroll(scrollRef, {
+    onScroll: () => {
+      if (!didScroll) {
+        setDidScroll(true);
+      }
+    },
+  });
 
   const isOverflowing = useIsOverflowing(scrollRef);
 
