@@ -148,7 +148,8 @@ export const authLib = betterAuth({
               });
               break;
             default:
-              logger.warn({ type }, "Unknown OTP type");
+              logger.error({ type }, "Unknown OTP type - email not sent");
+              throw new Error(`Unsupported OTP type: ${type}`);
           }
         } catch (error) {
           logger.error(
