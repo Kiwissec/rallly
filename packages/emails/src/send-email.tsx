@@ -141,24 +141,13 @@ export class EmailClient {
 
   async sendEmail(options: Mail.Options) {
     if (!process.env.SUPPORT_EMAIL) {
-      console.warn(
-        "OTP_DEBUG: SUPPORT_EMAIL not configured - skipping email send",
-      );
       return;
     }
-
-    console.warn("OTP_DEBUG: Sending email via transport", {
-      to: options.to,
-      subject: options.subject,
-      provider: this.config.provider.name,
-    });
 
     await this.transport.sendMail({
       ...options,
       from: options.from || this.config.mail.from,
     });
-
-    console.warn("OTP_DEBUG: Email sent successfully via transport");
   }
 
   private get transport() {

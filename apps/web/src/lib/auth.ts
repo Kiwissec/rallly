@@ -132,42 +132,28 @@ export const authLib = betterAuth({
       expiresIn: 15 * 60,
       overrideDefaultEmailVerification: true,
       async sendVerificationOTP({ email, otp, type }) {
-        logger.warn(
-          { email, type },
-          "OTP_DEBUG: sendVerificationOTP callback invoked",
-        );
         const locale = await getLocale(); // TODO: Get locale from email
         const emailClient = await getEmailClient(locale);
         try {
           switch (type) {
-            // We're not actually using the sign-in type anymore since we just we have `autoSignInAfterVerification` enabled.
-            // This lets us keep things a bit simpler since we share the same verification flow for both login and registration.
+            // Both sign-in and email-verification types are supported.
+            // sign-in type is used for new user OTP registration flow.
+            // email-verification type is used for email verification after password signup.
             case "sign-in":
             case "email-verification":
-              logger.warn(
-                { email, type },
-                "OTP_DEBUG: Sending RegisterEmail template",
-              );
               await emailClient.sendTemplate("RegisterEmail", {
                 to: email,
                 props: {
                   code: otp,
                 },
               });
-              logger.warn(
-                { email, type },
-                "OTP_DEBUG: Email sent successfully",
-              );
               break;
             default:
               logger.error({ type }, "Unknown OTP type - email not sent");
               throw new Error(`Unsupported OTP type: ${type}`);
           }
         } catch (error) {
-          logger.error(
-            { error, email, type },
-            "Failed to send verification OTP",
-          );
+          logger.error({ error, type }, "Failed to send verification OTP");
           throw error;
         }
       },

@@ -35,7 +35,9 @@ export function OTPForm({ email }: { email: string }) {
 
   const searchParams = useSearchParams();
   const handleSubmit = form.handleSubmit(async (data) => {
-    const res = await authClient.emailOtp.verifyEmail({
+    // Use signIn.emailOtp to match the sign-in type used when sending OTP
+    // This ensures the OTP identifier matches: sign-in-otp-{email}
+    const res = await authClient.signIn.emailOtp({
       email,
       otp: data.otp,
     });
