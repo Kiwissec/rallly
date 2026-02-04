@@ -128,10 +128,14 @@ export const authLib = betterAuth({
       storeInDatabase: true,
     }),
     emailOTP({
-      disableSignUp: true,
+      disableSignUp: false,
       expiresIn: 15 * 60,
       overrideDefaultEmailVerification: true,
       async sendVerificationOTP({ email, otp, type }) {
+        logger.warn(
+          { email, type },
+          "OTP_DEBUG: sendVerificationOTP callback invoked",
+        );
         const locale = await getLocale(); // TODO: Get locale from email
         const emailClient = await getEmailClient(locale);
         try {
@@ -140,12 +144,20 @@ export const authLib = betterAuth({
             // This lets us keep things a bit simpler since we share the same verification flow for both login and registration.
             case "sign-in":
             case "email-verification":
+              logger.warn(
+                { email, type },
+                "OTP_DEBUG: Sending RegisterEmail template",
+              );
               await emailClient.sendTemplate("RegisterEmail", {
                 to: email,
                 props: {
                   code: otp,
                 },
               });
+              logger.warn(
+                { email, type },
+                "OTP_DEBUG: Email sent successfully",
+              );
               break;
             default:
               logger.error({ type }, "Unknown OTP type - email not sent");
