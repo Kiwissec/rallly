@@ -2,6 +2,11 @@
   "name": "rallly",
   "private": true,
   "version": "4.6.3",
+  "pnpm": {
+    "overrides": {
+      "zod": "^4.3.6"
+    }
+  },
   "scripts": {
     "dev": "turbo dev --filter=@rallly/web",
     "dev:emails": "turbo dev --filter=@rallly/emails",

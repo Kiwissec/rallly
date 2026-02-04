@@ -14,6 +14,7 @@ import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import type { VerificationType } from "@/app/[locale]/(auth)/login/actions";
 import { Trans } from "@/components/trans";
 import { useTranslation } from "@/i18n/client";
 import { authClient } from "@/lib/auth-client";
@@ -24,7 +25,13 @@ const otpFormSchema = z.object({
   otp: z.string().length(6),
 });
 
-export function OTPForm({ email }: { email: string }) {
+export function OTPForm({
+  email,
+  verificationType,
+}: {
+  email: string;
+  verificationType: VerificationType;
+}) {
   const { t } = useTranslation();
   const form = useForm({
     defaultValues: {
@@ -35,12 +42,19 @@ export function OTPForm({ email }: { email: string }) {
 
   const searchParams = useSearchParams();
   const handleSubmit = form.handleSubmit(async (data) => {
-    // Use signIn.emailOtp to match the sign-in type used when sending OTP
-    // This ensures the OTP identifier matches: sign-in-otp-{email}
-    const res = await authClient.signIn.emailOtp({
-      email,
-      otp: data.otp,
-    });
+    // Use the appropriate verification endpoint based on the flow type:
+    // - "sign-in": OTP login flow -> signIn.emailOtp (matches sign-in-otp-{email})
+    // - "email-verification": Password registration flow -> verifyEmail (matches email-verification-otp-{email})
+    const res =
+      verificationType === "sign-in"
+        ? await authClient.signIn.emailOtp({
+            email,
+            otp: data.otp,
+          })
+        : await authClient.emailOtp.verifyEmail({
+            email,
+            otp: data.otp,
+          });
 
     if (res.error) {
       switch (res.error.code) {

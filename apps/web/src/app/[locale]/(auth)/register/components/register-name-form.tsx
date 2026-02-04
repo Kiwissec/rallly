@@ -89,7 +89,10 @@ export function RegisterNameForm() {
             }
 
             if (res.data?.user?.email) {
-              await setVerificationEmail(res.data.user.email);
+              await setVerificationEmail(
+                res.data.user.email,
+                "email-verification",
+              );
               router.push(verifyURL);
             }
           } catch (error) {

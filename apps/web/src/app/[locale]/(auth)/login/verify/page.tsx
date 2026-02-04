@@ -14,11 +14,15 @@ import {
   AuthPageHeader,
   AuthPageTitle,
 } from "../../components/auth-page";
+import { getVerificationType } from "../actions";
 import { OTPForm } from "./components/otp-form";
 
 export default async function VerifyPage() {
   const { t } = await getTranslation();
-  const email = (await cookies()).get("verification-email")?.value;
+  const cookieStore = await cookies();
+  const email = cookieStore.get("verification-email")?.value;
+  const verificationType = await getVerificationType();
+
   if (!email) {
     return redirect("/login");
   }
@@ -47,7 +51,7 @@ export default async function VerifyPage() {
         </AuthPageDescription>
       </AuthPageHeader>
       <AuthPageContent>
-        <OTPForm email={email} />
+        <OTPForm email={email} verificationType={verificationType} />
         <Button size="lg" variant="link" className="w-full" asChild>
           <Link href="/login">
             <Trans t={t} ns="app" i18nKey="back" defaults="Back" />

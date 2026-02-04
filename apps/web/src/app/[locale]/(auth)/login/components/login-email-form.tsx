@@ -125,7 +125,7 @@ export function LoginWithEmailForm() {
               return;
             }
 
-            await setVerificationEmail(identifier);
+            await setVerificationEmail(identifier, "sign-in");
             // redirect to verify page with redirectTo
 
             router.push(

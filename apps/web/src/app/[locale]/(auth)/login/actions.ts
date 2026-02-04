@@ -8,15 +8,28 @@ import {
   createRateLimitMiddleware,
 } from "@/lib/safe-action/server";
 
-export async function setVerificationEmail(email: string) {
-  const cookieStore = await cookies();
+export type VerificationType = "sign-in" | "email-verification";
 
-  cookieStore.set("verification-email", email, {
+export async function setVerificationEmail(
+  email: string,
+  type: VerificationType = "sign-in",
+) {
+  const cookieStore = await cookies();
+  const cookieOptions = {
     httpOnly: true,
     secure: process.env.NEXT_PUBLIC_BASE_URL?.startsWith("https://"),
-    sameSite: "lax",
+    sameSite: "lax" as const,
     maxAge: 15 * 60,
-  });
+  };
+
+  cookieStore.set("verification-email", email, cookieOptions);
+  cookieStore.set("verification-type", type, cookieOptions);
+}
+
+export async function getVerificationType(): Promise<VerificationType> {
+  const cookieStore = await cookies();
+  const type = cookieStore.get("verification-type")?.value;
+  return type === "email-verification" ? "email-verification" : "sign-in";
 }
 
 export const getLoginMethodAction = actionClient
