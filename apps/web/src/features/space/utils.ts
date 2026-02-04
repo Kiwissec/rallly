@@ -39,7 +39,7 @@ const MAX_SEAT_LIMIT = Number.POSITIVE_INFINITY;
  * Modified: Always return unlimited seats for self-hosted instances
  */
 export function getSelfHostedSeatLimit(
-  licenseType: LicenseType | null,
+  _licenseType: LicenseType | null,
 ): number {
   return Number.POSITIVE_INFINITY;
 }

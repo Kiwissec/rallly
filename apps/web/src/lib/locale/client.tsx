@@ -48,7 +48,7 @@ export function LocaleSync({ userLocale }: { userLocale: string }) {
         },
       );
     }
-  }, [locale, normalizedUserLocale, router.refresh, t]);
+  }, [locale, normalizedUserLocale, router, t]);
 
   return null;
 }
