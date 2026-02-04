@@ -20,6 +20,8 @@ export class LoginPage {
 
     // If password is provided and the password field appears, use password login
     if (password) {
+      // Wait for password field to appear (getLoginMethod API may take time)
+      await this.page.getByLabel("Password").waitFor({ timeout: 10000 });
       await this.page.getByLabel("Password").fill(password);
 
       await this.page

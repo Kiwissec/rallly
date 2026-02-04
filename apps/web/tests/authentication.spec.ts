@@ -78,7 +78,8 @@ test.describe.serial(() => {
 
       await page.getByRole("button", { name: "Continue with email" }).click();
 
-      expect(page.getByPlaceholder("••••••••")).toBeVisible();
+      // Wait for password field to appear (user has credential account)
+      await expect(page.getByPlaceholder("••••••••")).toBeVisible();
 
       await page.getByRole("button", { name: "Login with email" }).click();
 
@@ -98,7 +99,8 @@ test.describe.serial(() => {
 
       await page.getByRole("button", { name: "Continue with email" }).click();
 
-      expect(page.getByPlaceholder("••••••••")).toBeVisible();
+      // Wait for password field to appear (user has credential account)
+      await expect(page.getByPlaceholder("••••••••")).toBeVisible();
 
       await page.getByRole("button", { name: "Login with email" }).click();
 
