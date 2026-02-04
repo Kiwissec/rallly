@@ -135,6 +135,7 @@ export class EmailClient {
         subject,
       });
       this.config.onError?.(enhancedError);
+      throw enhancedError;
     }
   }
 
@@ -144,15 +145,10 @@ export class EmailClient {
       return;
     }
 
-    try {
-      await this.transport.sendMail({
-        ...options,
-        from: options.from || this.config.mail.from,
-      });
-      return;
-    } catch (e) {
-      console.error("Error sending email", e);
-    }
+    await this.transport.sendMail({
+      ...options,
+      from: options.from || this.config.mail.from,
+    });
   }
 
   private get transport() {
